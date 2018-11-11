@@ -44,7 +44,7 @@ namespace Test.X10
             x10.RfCommandReceived += X10_RfCommandReceived;
             x10.RfSecurityReceived += X10_RfSecurityReceived;
             // Setup X10 interface. For CM15 set PortName = "USB"; for CM11 use serial port path intead (eg. "COM7" or "/dev/ttyUSB0")
-            x10.PortName = "USB";
+            x10.PortName = "CM19";
             x10.HouseCode = "A,C";
             // Connect to the interface
             x10.Connect();

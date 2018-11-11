@@ -255,9 +255,13 @@ namespace XTenLib
                     // using the new port
                     Close();
                     // instantiate the requested interface
-                    if (value.ToUpper() == "USB")
+                    if (value.ToUpper() == "USB" || value.ToUpper() == "CM15Pro")
                     {
                         x10interface = new CM15();
+                    }
+                    else if (value.ToUpper() == "CM19")
+                    {
+                        x10interface = new CM19();
                     }
                     else
                     {
@@ -741,6 +745,12 @@ namespace XTenLib
                         // For CM15 we do not need to receive ACK message to claim status as connected
                         OnConnectionStatusChanged(new ConnectionStatusChangedEventArgs(true));
                     }
+                    else if (x10interface.GetType().Equals(typeof(CM19)))
+                    {
+                        // For CM19 we do not need to receive ACK message to claim status as connected
+                        OnConnectionStatusChanged(new ConnectionStatusChangedEventArgs(true));
+                    }
+                    
                     // Start the Reader task
                     gotReadWriteError = false;
                     // Start the Reader task
@@ -1125,23 +1135,28 @@ namespace XTenLib
 
                             #region This is an hack for detecting disconnection status on Linux/Mono platforms
 
-                            if (readData[0] == 0x00)
+                            // TODO: not sure if CM19 need this check as well
+                            if (!x10interface.GetType().Equals(typeof(CM19)))
                             {
-                                zeroChecksumCount++;
-                            }
-                            else
-                            {
-                                zeroChecksumCount = 0;
-                            }
-                            //
-                            if (zeroChecksumCount > 10)
-                            {
-                                zeroChecksumCount = 0;
-                                gotReadWriteError = true;
-                            }
-                            else
-                            {
-                                SendMessage(new byte[] { 0x00 });
+                                if (readData[0] == 0x00)
+                                {
+                                    zeroChecksumCount++;
+                                }
+                                else
+                                {
+                                    zeroChecksumCount = 0;
+                                }
+
+                                //
+                                if (zeroChecksumCount > 10)
+                                {
+                                    zeroChecksumCount = 0;
+                                    gotReadWriteError = true;
+                                }
+                                else
+                                {
+                                    SendMessage(new byte[] {0x00});
+                                }
                             }
 
                             #endregion
